@@ -1,4 +1,4 @@
-helloworld: helloworld.asm ../common/init.asm
+helloworld.bin: helloworld.asm ../common/init.asm
 	spasm -E helloworld.asm
 
 clean:
