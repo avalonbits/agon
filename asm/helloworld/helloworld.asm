@@ -5,20 +5,20 @@
 ; The main routine
 ;
 main:
-	LD		HL, hello_world
-	CALL	prstr
-	LD		HL, 0
+	LD      HL, hello_world
+	CALL    prstr
+	LD      HL, 0
 	RET.L
 
 ; Print a zero-terminated string
 ;
 prstr:
-	LD		A,(HL)
-	OR		A
-	RET		Z
+	LD      A,(HL)
+	OR      A
+	RET     Z
 	RST.LIL 10h
-	INC		HL
-	JR		prstr
+	INC     HL
+	JR      prstr
 
 ; Sample text
 ;
