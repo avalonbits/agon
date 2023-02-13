@@ -1,6 +1,6 @@
             .ASSUME ADL = 1
 
-            #include "../common/init.asm"
+            #include "../include/init.asm"
 
 ; The main routine
 ;

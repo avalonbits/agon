@@ -1,8 +1,10 @@
-helloworld.hex: helloworld.asm ../common/init.asm
+all: helloworld.hex helloworld.bin
+
+helloworld.hex: helloworld.asm ../include/*
 	spasm -E helloworld.asm helloworld.hex
 
-helloworld.bin: helloworld.asm ../common/init.asm
+helloworld.bin: helloworld.asm ../include/*
 	spasm -E -T helloworld.asm
 
 clean:
-	rm -frv *.bin
+	rm -frv *.bin *.hex *.lst

@@ -6,11 +6,11 @@
             .ASSUME ADL = 1     ; Start in ADL mode
 
 
-            JP  _START          ; Jump over the obligatory header.
+            JR  _START          ; Jump over the obligatory header.
 
             ; The required MOS header.
             ;
-            .BLOCK  60
+            .BLOCK  62
             .db     "MOS"   ; Flag for MOS - to confirm this is a valid MOS command
             .db     00h     ; MOS header version 0
             .db     01h     ; Flag for run mode (0: Z80, 1: ADL)
