@@ -22,3 +22,6 @@ ez80asm PROG.asm /mos/PROG.bin
 This will assemble the program and write the binary directly to your `/mos` directory. After that, typing `PROG` on the
 commandline will start the program.
 
+To edit these programs, you can use my text editor [AED](https://github.com/avalonbits/aed).
+[Nano](https://github.com/lennart-benschop/agon-utilities/tree/main/Nano/Release) and
+[vi](https://github.com/tomm/toms-agon-experiments/tree/main/vi/bin)c are also available.
