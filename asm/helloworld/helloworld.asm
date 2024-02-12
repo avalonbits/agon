@@ -1,26 +1,24 @@
-            .ASSUME ADL = 1
+	; Using ADL mode and starting at the moslet address.
+	.ASSUME ADL = 1
+	.ORG	$B0000
 
-            #include "../include/init.asm"
+	; Jump to main function
+	JP	_start
+
+	; Optionaly name your binary
+	.DB		"HELLOWORLD.BIN"
+
+	; Write the program header starting at byte 64.
+	.ALIGN	64
+	.DB		"MOS", 0, 1
 
 ; The main routine
 ;
-main:       LD      HL, hello_world     ; Load string adddres to HL register
-            CALL    prstr               ; Call print string funcition
-            LD      HL, 0               ; Set application return code to 0
+_start:		LD      HL, hello_world     ; Load string adddres to HL register
+			LD		A, 0				; Indicate it  is null terminated.
+			RST.LIL 18h					; Call MOS print string function.
+
+			LD      HL, 0               ; Set application return code to 0
             RET                         ; Done.
 
-; Print a zero-terminated strin
-; Arguments:
-;   - HL: pointer to start of zero-terminated string.
-;
-prstr:      LD      A,(HL)              ; Load curreent character from string
-            OR      A                   ; Check if it is zero
-            RET     Z                   ; If zero, we are done.
-
-            RST.LIL 10h                 ; Send the charcter to VDP
-            INC     HL                  ; Get the next charcter
-            JR      prstr               ; Loop back.
-
-; Sample text
-;
-hello_world:    .db "Hello World\n\r",0
+hello_world:    .asciz "Hello, World!\r\n"
