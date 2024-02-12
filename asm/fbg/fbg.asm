@@ -1,9 +1,14 @@
-    .ASSUME ADL = 1
+    ; Using ADL mode and starting at the moslet address.
+	.ASSUME ADL = 1
     .ORG $B0000
 
+	; Jump to main function
     JP _start
 
+	; Optionaly name your binary
     .DB "FBG.BIN"
+
+	; Write the program header starting at byte 64.
     .ALIGN 64
     .DB "MOS", 0, 1
 
@@ -18,7 +23,7 @@
     ENDMACRO
 
 ; Print line
-    MACRO m_PRINT_LINE line, ydiff 
+    MACRO m_PRINT_LINE line, ydiff
         LD A, (ypos)
         ADD A, ydiff
         LD B, A
@@ -51,26 +56,36 @@ _start:
         LD (xpos), A
 
         ; Store the Y position for text.
-        LD A, (IX+14h)  ; #rows on screen
+        LD A, (IX+14h)  ; #rows on screen.
+
+		; Because we have 5 lines of text and want to center it,
+		; We halve th Y position and subtract 2 from it before storing.
         SRL A
         DEC A
         DEC A
         LD (ypos), A
 
-        ; Store the color mask
+        ; Store the color mask. We do this by geting the number of colors,
+		; which is always a power of 2, and subctract 1 from it.
         LD A, (IX+15h)
         DEC A
         LD (color_mask), A
 
+		; Detect the current fg and bg colors being used so we can reset to
+		; them in case user no longer wants to change the colors.
         CALL detect_fg_bg
-                
+
 loop:
         ; Clear screen.
         m_CLS
 
+		; Print instructions
         call center_instructions
+
+		; Wait for key press to select colors.
         call choose_colors
 
+		; If A != 0 then program is finished. Otherwise, loop.
         OR A
         JP Z, loop
 
@@ -89,20 +104,31 @@ exit:
 ; Functions                           |
 ;--------------------------------------
 _vdp_tab:   .DB 31,0,0
+; Sets the cursor X,Y position.
+; Params:
+; - A register:  Y position
+; - B registier: X position
+; Destroys:
+; - IX, HL, BC.
 vdp_tab:
         ; Setup vdp_tab call.
         LD IX, _vdp_tab
+
+		; Y position
         LD (IX+1), A
 
+		; X position
         LD A, B
         LD (IX+2), A
 
+		; Call mos vdp_tab function.
         LD HL, _vdp_tab
         LD BC, 3
         RST.LIL 18h
 
         RET
 
+; Prints the instructions to the screen using the m_PRINT_LINE macro.
 center_instructions:
         m_PRINT_LINE banner, 0
         m_PRINT_LINE msg, 1
@@ -111,6 +137,8 @@ center_instructions:
         m_PRINT_LINE banner, 4
         RET
 
+; Color choosing loop, that uses UP/DOWN to change fg color and LEFT/RIGHT to
+; change bg color.
 choose_colors:
         ; Get sysvars
         LD A, 08h
@@ -128,8 +156,12 @@ choose_colors:
         ; Check for enter.
         CP key_enter
         JP Z, @quit
+
+		; Don't want to exit the program, so see if UP/DOOW/LEFT/RIGHT were
+		; pressed.
         JP @change_color
 
+; Restores the detected colors and exits the program.
 @cancel:
         ; Restore foreground color.
         LD A, (ofg)
@@ -141,11 +173,13 @@ choose_colors:
 
         CALL set_color
 
+; Indiciates that user wants to exit the program.
 @quit:
         ; User wants to quit the program.
         LD A, 0xFF
         RET
 
+; Checks which arrow keys were pressed and changes the color accordingly.
 @change_color:
         ; Next FG color?
         CP key_up
@@ -158,7 +192,7 @@ choose_colors:
         ; Next BG color?
         CP key_right
         CALL Z, next_bg
-        
+
         ; Prev BG color?
         CP key_left
         CALL Z, prev_bg
@@ -171,7 +205,8 @@ next_fg:
         LD HL, fg
         CALL next_color
         CALL set_color
-        RET
+        RETi
+
 prev_fg:
         LD HL, fg
         CALL prev_color
@@ -182,25 +217,31 @@ next_bg:
         LD HL, bg
         CALL next_color
 
+		; bg color is the same fg color but with the 7th bit set (+128).
         OR A, 80h
-        CALL set_color        
+        CALL set_color
         RET
 
 prev_bg:
         LD HL, bg
         CALL prev_color
 
+		; bg colors are the same as fg, but with the 7th bit set (+128).
         OR A, 80h
         CALL set_color
         RET
 
+; Increments the color, applying the mask.
+; Basically, fg = (fg+1) mod MASK;
 next_color:
         LD A, (HL)
         INC A
         CALL apply_color_mask
         LD (HL), A
         RET
-        
+
+; Decrements the color, resetting it to MASK
+; in case it would be negative.
 prev_color:
         LD A, (HL)
         OR A
@@ -215,14 +256,18 @@ prev_color:
         call apply_color_mask
         LD (HL), A
         RET
-    
+
 apply_color_mask:
         LD B, A
         LD A, (color_mask)
         AND A, B
         RET
 
+
 _set_color: .DB 17,0
+; Changes the fg/bg color
+; Params:
+; - A register: the color value.
 set_color:
         LD IX, _set_color
         LD (IX+1), A
@@ -282,8 +327,6 @@ get_ch_center_color:
         ; Now get the color set and return it on A
         LD A, (IX+16h)
         RET
-        
-htoa:
 
 ; -------------------------------------
 ; DATA                                |
@@ -292,7 +335,7 @@ htoa:
 banner:     .ASCIZ "****************************************\r\n"
 msg:        .ASCIZ "*       UP/DOWN=FG LEFT/RIGHT=BG       *\r\n"
 empty:      .ASCIZ "*                                      *\r\n"
-control:    .ASCIZ "* ENTER=Confirm ESC=Cancel and restore *\r\n" 
+control:    .ASCIZ "* ENTER=Confirm ESC=Cancel and restore *\r\n"
 ypos:       .DS 1
 xpos:       .DS 1
 fg:         .DS 1,0
@@ -309,5 +352,3 @@ key_up:     .EQU 96h
 key_down:   .EQU 98h
 key_left:   .EQU 9Ah
 key_right:  .EQU 9Ch
-
-hex2ch:     .DB "012345678ABCDE"
