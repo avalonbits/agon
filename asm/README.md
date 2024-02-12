@@ -1,14 +1,24 @@
 AGON assemmbly programs.
 ========================
 
-A few programs written in eZ80 assembly for the Agon Light running MOS 1.02 (or later?).
+A few programs written in eZ80 assembly for the Agon line of computers. They require MOS 1.04 or above and VDP 1.04 or
+above.
 
-All programs were assembled using SPASM-ng which works on Linux, Mac OS and Windows.
+All programs here are moslets, meaning they should be copied to the `/mos` directory and can be ran by typing their name
+on the command line and pressing ENTER/RETURN.
 
-Each program has its own directory with a Makefile to assemble it. Once assembled, copy the resulting .bin file to your Agon's microsd card.
-To run the program, at the MOS prompt type:
+The purpose of these programs is to be educational, so they are heavily commented and not necessarily the most efficient
+versions possible.
+
+To assemble them on your agon computer, you will the need the [ez80asm assembler](https://github.com/envenomator/agon-ez80asm).
+Follow the instructions there to install it to your `/mos` directory.
+
+Once installed, you can assemble any of the  prograsm as follows:
 
 ```
-*load program.bin
-*run
+ez80asm PROG.asm /mos/PROG.bin
 ```
+
+This will assemble the program and write the binary directly to your `/mos` directory. After that, typing `PROG` on the
+commandline will start the program.
+
