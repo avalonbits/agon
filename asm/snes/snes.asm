@@ -294,6 +294,7 @@ controller:
         .db  "'--------------------------------------'\r\n"
 
 ; button struct: chY, chX, 7 bytes for null terminated string
+; The records are in the order we get the data from the controller.
 buttons:
         .db 04,12,'R',00,00,00,00,00,00
         .db 04,02,'L',00,00,00,00,00,00
@@ -307,27 +308,6 @@ buttons:
         .db 00,07,'L',00,00,00,00,00,00
         .db 02,33,'X',00,00,00,00,00,00
         .db 04,37,'A',00,00,00,00,00,00
-
-
-ch_btnLUD:      .EQU    7
-ch_btnRXB:      .EQU    34
-ch_btnLeft:     .EQU    1
-ch_btnRight:    .EQU    11
-ch_btnY:        .EQU    30
-ch_btnA:        .EQU    38
-
-maskRIGHT:      .EQU    01h
-maskLEFT:       .EQU    02h
-maskDOWN:       .EQU    04h
-maskUP:         .EQU    08h
-maskSTART:
-maskR_TRIGGER:  .EQU    10h
-maskSELECT:
-maskL_TRIGGER:  .EQU    20h
-maskY:
-maskX:          .EQU    40h
-maskB:
-maskA:          .EQU    80h
 
 fg:             .DB 0
 bg:             .DB 0
